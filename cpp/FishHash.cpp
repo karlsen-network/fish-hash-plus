@@ -144,9 +144,14 @@ namespace FishHash {
 		for (uint32_t i = 0; i < num_dataset_accesses; ++i) {
 					
 			// Calculate new fetching indexes
-			const uint32_t p0 = mix.word32s[0] % index_limit;
-			const uint32_t p1 = mix.word32s[4] % index_limit;
-			const uint32_t p2 = mix.word32s[8] % index_limit;
+			uint32_t mixGroup[8]; 
+			for (uint32_t c=0; c<8; c++) {
+				mixGroup[c] = (mix.word32s[4*c + 0] ^ mix.word32s[4*c + 1] ^ mix.word32s[4*c + 2] ^ mix.word32s[4*c + 3]);
+			}
+
+			const uint32_t p0 = (mixGroup[0] ^ mixGroup[3] ^ mixGroup[6]) % index_limit;
+			const uint32_t p1 = (mixGroup[1] ^ mixGroup[4] ^ mixGroup[7]) % index_limit;
+			const uint32_t p2 = (mixGroup[2] ^ mixGroup[5] ^           i) % index_limit;
 					       
 			hash1024 fetch0 = lookup(ctx, p0);
 			hash1024 fetch1 = lookup(ctx, p1);
@@ -182,7 +187,7 @@ namespace FishHash {
 		blake3_hasher hasher;
 		blake3_hasher_init(&hasher);
 		blake3_hasher_update(&hasher, header, header_size);
-		blake3_hasher_finalize(&hasher, seed.bytes, 64);
+		blake3_hasher_finalize(&hasher, seed.bytes, 32);
 				
 		const hash256 mix_hash = fishhash_kernel(*ctx, seed);
 	    

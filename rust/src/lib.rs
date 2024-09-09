@@ -4,7 +4,7 @@ use tiny_keccak::Hasher;
 
 const FNV_PRIME: u32 = 0x01000193;
 const FULL_DATASET_ITEM_PARENTS: u32 = 512;
-const NUM_DATASET_ACCESSES: i32 = 32;
+const NUM_DATASET_ACCESSES: u32 = 32;
 const LIGHT_CACHE_ROUNDS: i32 = 3;
 
 const LIGHT_CACHE_NUM_ITEMS: u32 = 1179641;
@@ -265,11 +265,20 @@ pub fn hash(output: &mut [u8], context: &mut Context, header: &[u8]) {
 fn fishhash_kernel(context: &mut Context, seed: &Hash512) -> Hash256 {
     let mut mix = Hash1024::from_512s(seed, seed);
 
-    for _ in 0..NUM_DATASET_ACCESSES as usize {
+    for i in 0..NUM_DATASET_ACCESSES {
         // Calculate new fetching indexes
-        let p0 = mix.get_as_u32(0) % FULL_DATASET_NUM_ITEMS;
-        let p1 = mix.get_as_u32(4) % FULL_DATASET_NUM_ITEMS;
-        let p2 = mix.get_as_u32(8) % FULL_DATASET_NUM_ITEMS;
+        let mut mix_group: [u32; 8] = [0; 8];
+
+        for (c, mix_group_elem) in mix_group.iter_mut().enumerate() {
+            *mix_group_elem = mix.get_as_u32(4 * c)
+                ^ mix.get_as_u32(4 * c + 1)
+                ^ mix.get_as_u32(4 * c + 2)
+                ^ mix.get_as_u32(4 * c + 3);
+        }
+
+        let p0 = (mix_group[0] ^ mix_group[3] ^ mix_group[6]) % FULL_DATASET_NUM_ITEMS;
+        let p1 = (mix_group[1] ^ mix_group[4] ^ mix_group[7]) % FULL_DATASET_NUM_ITEMS;
+        let p2 = (mix_group[2] ^ mix_group[5] ^ i) % FULL_DATASET_NUM_ITEMS;
 
         let fetch0 = lookup(context, p0 as usize);
         let mut fetch1 = lookup(context, p1 as usize);
