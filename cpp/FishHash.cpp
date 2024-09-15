@@ -191,9 +191,11 @@ namespace FishHash {
 				
 		const hash256 mix_hash = fishhash_kernel(*ctx, seed);
 	    
-		uint8_t final_data[sizeof(seed) + sizeof(mix_hash)];
-		std::memcpy(&final_data[0], seed.bytes, sizeof(seed));
-		std::memcpy(&final_data[sizeof(seed)], mix_hash.bytes, sizeof(mix_hash));
+		//uint8_t final_data[sizeof(seed) + sizeof(mix_hash)];
+		//std::memcpy(&final_data[0], seed.bytes, sizeof(seed));
+		//std::memcpy(&final_data[sizeof(seed)], mix_hash.bytes, sizeof(mix_hash));
+		uint8_t final_data[sizeof(mix_hash)];
+		std::memcpy(&final_data[0], mix_hash.bytes, sizeof(mix_hash));
 	    
 		hash256 finValue;
 	    
@@ -202,7 +204,7 @@ namespace FishHash {
 		uint32_t * data = (uint32_t *) final_data;
 			    
 		blake3_hasher_init(&hasher);
-		blake3_hasher_update(&hasher, final_data, 64 + 32);
+		blake3_hasher_update(&hasher, final_data, 32);
 		blake3_hasher_finalize(&hasher, output, 32);
 	}
 	

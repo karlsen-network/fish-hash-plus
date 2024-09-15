@@ -5,6 +5,7 @@ Notable modifications are :
 * the header size of 80 bytes (no impact here)
 * the blake3 hash result are always of 32 bytes
 * the hasher use a hash512 seed as input like in the first version of fishhash
+* the last blake3 hash inuput is only the fishhashplus kernel result (32 bytes) instead of the seed + result (96 bytes)
 
 ## FishHash
 This is a work in progress version of Iron Fish's new mining algorithm FishHash. It was created by community member Lollidieb. It is a modified version of the [Ethash mining algorithm](https://ethereum.org/en/developers/docs/consensus-mechanisms/pow/mining-algorithms/ethash/) that uses the [blake3 hashing algorithm](https://github.com/BLAKE3-team/BLAKE3) as well as some other customizations.

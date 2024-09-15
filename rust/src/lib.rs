@@ -254,9 +254,11 @@ pub fn hash(output: &mut [u8], context: &mut Context, header: &[u8]) {
 
     let mix_hash = fishhash_kernel(context, &seed);
 
-    let mut final_data: [u8; 96] = [0; 96];
-    final_data[0..64].copy_from_slice(&seed.0);
-    final_data[64..].copy_from_slice(&mix_hash.0);
+    //let mut final_data: [u8; 96] = [0; 96];
+    //final_data[0..64].copy_from_slice(&seed.0);
+    //final_data[64..].copy_from_slice(&mix_hash.0);
+    let mut final_data: [u8; 32] = [0; 32];
+    final_data[0..32].copy_from_slice(&mix_hash.0);
 
     let hash = blake3::hash(&final_data);
     output.copy_from_slice(hash.as_bytes());
